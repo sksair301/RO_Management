@@ -60,4 +60,85 @@ class AuthController extends Controller
         ]);
 
     }
+
+    public function profile(Request $request, JwtService $jwt){
+
+        $token = $request->bearerToken();
+
+        if(!$token){
+            return response()->json([
+                'success'=> False,
+                'message'=>'Invalid token'
+            ],401);
+        }
+
+        $payload =$jwt->verifyToken($token);
+
+        if(!$payload){
+            return response()->json([
+                'success'=> False,
+                'message'=>'Inavlid Token'
+            ],401);
+        }
+
+        $user = User::find($payload['id']);
+
+        if(!$user){
+            return response()->json([
+                'success'=> False,
+                'message'=>'User not found'
+            ],404);
+        }
+
+        return response()->json([
+            'success'=>True,
+            'message'=>'Profile fetched Successfully',
+            'data'=>$user
+        ],200);
+
+    }
+
+    public function refresh(Request $request, JwtService $jwt){
+        $token = $request->bearerToken();
+
+        if(!token){
+            return response()->json([
+                'success'=>False,
+                'message'=>'Inavlid Token'
+            ],401);
+        }
+
+        $payload = $jwt->verifyToken($token);
+
+        if(!$payload){
+            return response()->json([
+                'success'=>False,
+                'Message'=>'Inavlid Token'
+            ],401);
+        }
+
+        $user = User::find($payload['id']);
+
+        if(!$user){
+            return response()->json([
+                'success'=>False,
+                'message'=>'User not found'
+            ],404);
+        }
+
+        $newToken = $jwt->generateToken($user);
+
+        return response()->json([
+            'success'=>True,
+            'message'=>'Refresh token',
+            'token'=>$newToken
+        ],200);
+    }
+
+    public function logout(Request $request){
+        return response()->json([
+            'success'=>True,
+            'message'=>'Successfully logout'
+        ],200);
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use App\Services\JwtService;
+use App\Models\User;
 use Symfony\Component\HttpFoundation\Response;
 
 class JwtMiddleware
@@ -30,14 +31,23 @@ class JwtMiddleware
 
         $payload = $jwt->verifyToken($token);
 
-        if($payload == null){
+        if($payload === null){
             return response()->json([
                 'success'=>False,
                 'message'=>'Inavlid Token'
             ],401);
         }
 
-        $request->attributes->set('user',$payload);
+        $user = User::find($payload['id']);
+
+        if(!$user){
+            return response()->json([
+                'success'=> False,
+                'message'=>'User not found'
+            ],404);
+        }
+
+        $request->attributes->set('user',$user);
 
         return $next($request);
     }

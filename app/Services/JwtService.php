@@ -57,10 +57,7 @@ class JwtService{
         $parts = explode('.',$token);
 
         if(count($parts) !=3){
-            return response()->json([
-                'success' => FALSE,
-                'message' => 'Missing Token',
-            ],401);
+            return null;
         }
 
         [$header, $payload, $signature] = $parts;

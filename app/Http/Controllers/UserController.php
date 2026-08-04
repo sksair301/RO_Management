@@ -5,16 +5,31 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Routing\Controllers\HasMiddleware;
 
-class UserController extends Controller
+class UserController extends Controller implements HasMiddleware
 {
-    public function index(){
-        $user = User::with('departments','roles')->get();
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permissions:view-user', only: ['index', 'show']),
+            new Middleware('permissions:create-user', only: ['store']),
+            new Middleware('permissions:edit-user', only: ['update']),
+            new Middleware('permissions:delete-user', only: ['destroy']),
+        ];
+    }
+    public function index(Request $request){
+        $query = User::with('departments','roles');
+
+        $query->orderBy('created_at');
+
+        $user = $query->paginate();
 
         return response()->json([
             'success'=>True,
             'message'=>'Successfully fetched',
-            'data'=> $user
+            'data'=>$user
         ],200);
     }
 
@@ -114,6 +129,25 @@ class UserController extends Controller
             'success' => True,
             'message' => 'Data updated successfully',
             'data' => $user->fresh()
+        ],200);
+    }
+
+    public function destroy($id){
+
+        $user = User::find($id);
+
+        if(!$user){
+            return response()->json([
+                'success'=>False,
+                'message'=>'user not found'
+            ],404);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'success'=>True,
+            'message'=>'User deleted successfully'
         ],200);
     }
 }
