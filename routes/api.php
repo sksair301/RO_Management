@@ -8,6 +8,7 @@ use App\Http\Controllers\RolesController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\DepartmentsController;
+use App\Http\Controllers\VendorController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -21,7 +22,7 @@ Route::middleware(['jwt'])->prefix('admin')->group(function () {
     Route::get('/user',[UserController::class,'index']);
     Route::post('/user',[UserController::class,'store']);
     Route::get('/user/{id}',[UserController::class,'show']);
-    Route::patch('/user/{id}',[UserController::class,'update']);
+    Route::patch('/user/edit/{id}',[UserController::class,'update']);
 
     Route::get('/roles',[RolesController::class,'index']);
     Route::post('/roles',[RolesController::class,'store']);
@@ -35,3 +36,8 @@ Route::middleware(['jwt'])->prefix('admin')->group(function () {
     Route::delete('roles/{roleId}/permissions', [RolePermissionController::class, 'removePermission']);
 
 });
+
+Route::get('/vendor',[VendorController::class,'index']);
+Route::get('/vendor/{id}',[VendorController::class,'show']);
+Route::post('/vendor',[VendorController::class,'store']);
+Route::patch('vendor/{id}',[VendorController::class,'update']);

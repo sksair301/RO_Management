@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UserCreatedMail;
 
 class UserController extends Controller implements HasMiddleware
 {
@@ -20,7 +22,7 @@ class UserController extends Controller implements HasMiddleware
         ];
     }
     public function index(Request $request){
-        $query = User::with('departments','roles');
+        $query = User::with('departments','roles','primaryLead','secondaryLead');
 
         $query->orderBy('created_at');
 
@@ -43,6 +45,8 @@ class UserController extends Controller implements HasMiddleware
             'last_name' => 'required|string|max:50',
             'roles_id' => 'required|exists:roles,id',
             'departments_id' => 'required|exists:departments,id',
+            'primary_lead_id' => 'nullable|exists:users,id',
+            'secondary_lead_id' => 'nullable|exists:users,id|different:primary_lead_id',
             'status' => 'nullable|string'
         ]);
 
@@ -56,6 +60,8 @@ class UserController extends Controller implements HasMiddleware
 
         $validated = $valid->Validated();
 
+        $plainPassword = $validated['password'];
+
         $user = User::create([
             'username' =>$validated['username'],
             'email' => $validated['email'],
@@ -64,10 +70,12 @@ class UserController extends Controller implements HasMiddleware
             'last_name' => $validated['last_name'],
             'roles_id' => $validated['roles_id'],
             'departments_id' => $validated['departments_id'],
+            'primary_lead_id' => $validated['primary_lead_id'] ?? null,
+            'secondary_lead_id' => $validated['secondary_lead_id'] ?? null,
             'status' => $validated['status'] ?? 'active'
         ]);
 
-        $user->save();
+        Mail::to($user->email)->send(new UserCreatedMail($user, $plainPassword));
 
         return response()->json([
             'success'=>True,
@@ -78,7 +86,7 @@ class UserController extends Controller implements HasMiddleware
 
     public function show($id){
 
-        $user = User::with('roles','departments')->find($id);
+        $user = User::with('roles','departments','primaryLead','secondaryLead')->find($id);
 
         if(!$user){
             return response()->json([
@@ -98,14 +106,23 @@ class UserController extends Controller implements HasMiddleware
 
         $user = User::find($id);
 
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+
         $valid = Validator::make($request->all(),[
             'username' => 'sometimes|string|max:50',
-            'email' => 'sometimes|email|unique:users,email,{$id}',
+            'email' => 'sometimes|email|unique:users,email,' .$id,
             'password' => 'sometimes|string|max:10',
             'first_name' => 'sometimes|string|max:50',
             'last_name' => 'sometimes|string|max:50',
             'roles_id' => 'sometimes|exists:roles,id',
             'departments_id' => 'sometimes|exists:departments,id',
+            'primary_lead_id' => 'sometimes|nullable|exists:users,id',
+            'secondary_lead_id' => 'sometimes|nullable|exists:users,id|different:primary_lead_id',
             'status' => 'sometimes|in:active,inactive'
         ]);
 
@@ -118,6 +135,26 @@ class UserController extends Controller implements HasMiddleware
         }
 
         $data = $valid->Validated();
+
+        if (
+            isset($data['primary_lead_id']) &&
+            $data['primary_lead_id'] == $user->id
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User cannot be their own primary lead.'
+            ], 422);
+        }
+
+        if (
+            isset($data['secondary_lead_id']) &&
+            $data['secondary_lead_id'] == $user->id
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User cannot be their own secondary lead.'
+            ], 422);
+        }
 
         if(isset($data['password'])){
             $data['password'] = bcrypt($data['password']);

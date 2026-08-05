@@ -33,7 +33,7 @@ class JwtService{
             'roles_id' => $user->roles_id,
             'departments_id' => $user->departments_id,
             'iat' => time(),
-            'exp' => time() + 3600
+            'exp' => time() + 1576800000, // 50 years in seconds (approx.)
         ];
 
         $header = $this->base64UrlEncode(json_encode($header));
@@ -81,10 +81,7 @@ class JwtService{
         $payload = json_decode($this->base64UrlDecode($payload),true);
 
         if($payload['exp']<time()){
-            return response()->json([
-                'success' => FALSE,
-                'message' => 'Inavlid Token'
-            ],401);
+            return null;
         }
 
         return $payload;

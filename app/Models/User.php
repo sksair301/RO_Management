@@ -62,5 +62,15 @@ class User extends Authenticatable
         return $this->belongsTo(Departments::class);
     }
 
+    public function primaryLead(){
+
+        return $this->belongsTo(User::class,'primary_lead_id');
+    }
+
+    public function secondaryLead(){
+
+        return $this->belongsTo(User::class,'secondary_lead_id');
+    }
+
 
 }
