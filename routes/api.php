@@ -9,6 +9,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\VendorController;
+use App\Http\Controllers\RoFormController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -41,3 +42,15 @@ Route::get('/vendor',[VendorController::class,'index']);
 Route::get('/vendor/{id}',[VendorController::class,'show']);
 Route::post('/vendor',[VendorController::class,'store']);
 Route::patch('vendor/{id}',[VendorController::class,'update']);
+
+Route::middleware(['jwt'])->group(function(){
+
+    Route::get('/roForm',[RoFormController::class,'index']);
+    Route::post('/roForm',[RoFormController::class,'store']);
+    Route::get('/roForm/{id}',[RoFormController::class,'show']);
+    Route::patch('/roForm/{id}',[RoFormController::class,'update']);
+    Route::delete('/roForm/{id}',[RoFormController::class,'destroy']);
+
+    Route::patch('/roForm/{id}/approve',[RoFormController::class,'approve']);
+});
+

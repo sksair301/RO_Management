@@ -26,6 +26,8 @@ class User extends Authenticatable
         'last_name',
         'departments_id',
         'roles_id',
+        'primary_lead_id',
+        'secondary_lead_id',
         'status'
     ];
 
@@ -70,6 +72,21 @@ class User extends Authenticatable
     public function secondaryLead(){
 
         return $this->belongsTo(User::class,'secondary_lead_id');
+    }
+
+    public function createdRoForms()
+    {
+        return $this->hasMany(RoForm::class,'created_by');
+    }
+
+    public function updatedRoForms()
+    {
+        return $this->hasMany(RoForm::class,'updated_by');
+    }
+
+    public function approvedRoForms()
+    {
+        return $this->hasMany(RoForm::class,'approved_by');
     }
 
 
