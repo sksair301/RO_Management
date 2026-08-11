@@ -19,14 +19,26 @@ class RoleMiddleware
 
         if(!$user){
             return response()->json([
-                'success'=>FALSE,
+                'success'=>false,
                 'message'=>'Unauthorized'
             ],401);
         }
 
-        if(!in_array($user['roles_id'],$roles)){
+        $userRoleName = strtolower($user->roles?->name ?? '');
+        
+        // Admin role bypass
+        if ($userRoleName === 'admin') {
+            return $next($request);
+        }
+
+        $allowedRoles = array_map('strtolower', $roles);
+
+        $hasRole = in_array((string)$user->roles_id, $allowedRoles) || 
+                   in_array($userRoleName, $allowedRoles);
+
+        if(!$hasRole){
             return response()->json([
-                'success'=>False,
+                'success'=>false,
                 'message'=>'Access Denied'
             ],403);
         }

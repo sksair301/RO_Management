@@ -112,11 +112,22 @@ class VendorController extends Controller
         ],200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Vendor $vendor)
+    public function destroy($id)
     {
-        //
+        $vendor = Vendor::find($id);
+
+        if (!$vendor) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vendor not found'
+            ], 404);
+        }
+
+        $vendor->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Vendor deleted successfully'
+        ], 200);
     }
 }

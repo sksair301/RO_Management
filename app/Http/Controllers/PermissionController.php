@@ -9,13 +9,13 @@ use Illuminate\Support\Facades\Validator;
 class PermissionController extends Controller
 {
     public function index(){
-        $permission = Permissions::all();
+        $permissions = Permissions::all();
 
         return response()->json([
-            'success'=>True,
-            'messsage'=>'Successfully fetched',
-            'data'=>$permission
-        ],200);
+            'success' => true,
+            'message' => 'Successfully fetched',
+            'data' => $permissions
+        ], 200);
     }
 
     public function store(Request $request){
@@ -26,69 +26,91 @@ class PermissionController extends Controller
 
         if($valid->fails()){
             return response()->json([
-                'success'=>False,
-                'message'=>'Validation error',
-                'error'=>$valid->errors()
-            ],422);
+                'success' => false,
+                'message' => 'Validation error',
+                'error' => $valid->errors()
+            ], 422);
         }
 
-        $data = $valid->Validated();
+        $data = $valid->validated();
 
         $permission = Permissions::create([
-            'name'=> $data['name']
+            'name' => $data['name']
         ]);
 
-        $permission->save();
+        return response()->json([
+            'success' => true,
+            'message' => 'Created successfully',
+            'data' => $permission
+        ], 201);
+    }
+
+    public function show($id){
+        $permission = Permissions::find($id);
+
+        if(!$permission){
+            return response()->json([
+                'success' => false,
+                'message' => 'Permission not found'
+            ], 404);
+        }
 
         return response()->json([
-            'success'=>True,
-            'message'=>'Created successfully',
-            'data'=>$permission
-        ],200);
+            'success' => true,
+            'message' => 'Successfully fetched',
+            'data' => $permission
+        ], 200);
     }
 
     public function update(Request $request, $id){
 
-        $permission = Permission::find($id);
+        $permission = Permissions::find($id);
 
-        $valid = Validated::make($request->all(),[
-            'name'=> 'sometimes|string|max:220|unique:permissions,name'
+        if(!$permission){
+            return response()->json([
+                'success' => false,
+                'message' => 'Permission not found'
+            ], 404);
+        }
+
+        $valid = Validator::make($request->all(),[
+            'name'=> 'sometimes|string|max:220|unique:permissions,name,' . $id
         ]);
 
         if($valid->fails()){
             return response()->json([
-                'success'=>False,
-                'message'=>'Validation error',
-                'error'=> $valid->errors()
-            ],422);
+                'success' => false,
+                'message' => 'Validation error',
+                'error' => $valid->errors()
+            ], 422);
         }
 
-        $data = $valid->Validated();
+        $data = $valid->validated();
 
         $permission->update($data);
 
         return response()->json([
-            'success'=>True,
-            'message'=>'Successfully updated',
-            'data'=>$permission
-        ],200);
+            'success' => true,
+            'message' => 'Successfully updated',
+            'data' => $permission
+        ], 200);
     }
 
     public function destroy($id){
-        $permission = Permission::find($id);
+        $permission = Permissions::find($id);
 
         if(!$permission){
             return response()->json([
-                'success'->False,
-                'message'=>'Permission not found'
-            ],404);
+                'success' => false,
+                'message' => 'Permission not found'
+            ], 404);
         }
 
         $permission->delete();
 
         return response()->json([
-            'success'=>True,
-            'message'=>'Deleted Successfully'
-        ],404);
+            'success' => true,
+            'message' => 'Deleted successfully'
+        ], 200);
     }
 }

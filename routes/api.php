@@ -6,51 +6,79 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\RoFormController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AccountsController;
 
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
+// Auth Routes
+Route::post('/login', [AuthController::class, 'login']);
 
-Route::post('/login',[AuthController::class,'login']);
+Route::middleware(['jwt'])->group(function () {
+    Route::get('/profile', [AuthController::class, 'profile']);
+    Route::post('/refresh', [AuthController::class, 'refresh']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
 
-
-
+// Admin Routes (Users, Roles, Departments, Permissions)
 Route::middleware(['jwt'])->prefix('admin')->group(function () {
-    Route::get('/user',[UserController::class,'index']);
-    Route::post('/user',[UserController::class,'store']);
-    Route::get('/user/{id}',[UserController::class,'show']);
-    Route::patch('/user/edit/{id}',[UserController::class,'update']);
 
-    Route::get('/roles',[RolesController::class,'index']);
-    Route::post('/roles',[RolesController::class,'store']);
+    Route::get('/dashboard', [DashboardController::class, 'adminDashboard']);
 
-    Route::get('/departments',[DepartmentsController::class,'index']);
-    Route::post('/departments', [DepartmentsController::class,'store']);
+    // User CRUD
+    Route::get('/user', [UserController::class, 'index']);
+    Route::post('/user', [UserController::class, 'store']);
+    Route::get('/user/{id}', [UserController::class, 'show']);
+    Route::patch('/user/edit/{id}', [UserController::class, 'update']);
+    Route::delete('/user/{id}', [UserController::class, 'destroy']);
 
-    Route::apiResource('/permissions',PermissionController::class);
+    // Roles CRUD
+    Route::get('/roles', [RolesController::class, 'index']);
+    Route::post('/roles', [RolesController::class, 'store']);
+    Route::get('/roles/{id}', [RolesController::class, 'show']);
+    Route::patch('/roles/{id}', [RolesController::class, 'update']);
+    Route::delete('/roles/{id}', [RolesController::class, 'destroy']);
 
-    Route::post('roles/{roleId}/permissions', [RolePermissionController::class, 'assignPermission']);
-    Route::delete('roles/{roleId}/permissions', [RolePermissionController::class, 'removePermission']);
+    // Departments CRUD
+    Route::get('/departments', [DepartmentsController::class, 'index']);
+    Route::post('/departments', [DepartmentsController::class, 'store']);
+    Route::get('/departments/{id}', [DepartmentsController::class, 'show']);
+    Route::patch('/departments/{id}', [DepartmentsController::class, 'update']);
+    Route::delete('/departments/{id}', [DepartmentsController::class, 'destroy']);
+
+    // Permissions CRUD
+    Route::apiResource('/permissions', PermissionController::class);
 
 });
 
-Route::get('/vendor',[VendorController::class,'index']);
-Route::get('/vendor/{id}',[VendorController::class,'show']);
-Route::post('/vendor',[VendorController::class,'store']);
-Route::patch('vendor/{id}',[VendorController::class,'update']);
+// Vendor & RO Form Routes
+Route::middleware(['jwt'])->group(function () {
 
-Route::middleware(['jwt'])->group(function(){
+    // Vendor CRUD
+    Route::get('/vendor', [VendorController::class, 'index']);
+    Route::post('/vendor', [VendorController::class, 'store']);
+    Route::get('/vendor/{id}', [VendorController::class, 'show']);
+    Route::patch('/vendor/{id}', [VendorController::class, 'update']);
+    Route::delete('/vendor/{id}', [VendorController::class, 'destroy']);
 
-    Route::get('/roForm',[RoFormController::class,'index']);
-    Route::post('/roForm',[RoFormController::class,'store']);
-    Route::get('/roForm/{id}',[RoFormController::class,'show']);
-    Route::patch('/roForm/{id}',[RoFormController::class,'update']);
-    Route::delete('/roForm/{id}',[RoFormController::class,'destroy']);
+    // RO Form CRUD & Approval Status
+    Route::get('/roForm', [RoFormController::class, 'index']);
+    Route::post('/roForm', [RoFormController::class, 'store']);
+    Route::get('/roForm/{id}', [RoFormController::class, 'show']);
+    Route::patch('/roForm/{id}', [RoFormController::class, 'update']);
+    Route::delete('/roForm/{id}', [RoFormController::class, 'destroy']);
 
-    Route::patch('/roForm/{id}/approve',[RoFormController::class,'approve']);
+    Route::patch('/roForm/{id}/approve', [RoFormController::class, 'approve']);
+    Route::patch('/roForm/{id}/reject', [RoFormController::class, 'reject']);
+    Route::patch('/roForm/{id}/cancel', [RoFormController::class, 'cancel']);
 });
 
+// Accounts Department Routes (CRUD - Managed by Controller Middleware)
+Route::middleware(['jwt'])->prefix('accounts')->group(function () {
+    Route::get('/', [AccountsController::class, 'index']);
+    Route::post('/', [AccountsController::class, 'store']);
+    Route::get('/{id}', [AccountsController::class, 'show']);
+    Route::patch('/{id}', [AccountsController::class, 'update']);
+    Route::delete('/{id}', [AccountsController::class, 'destroy']);
+});

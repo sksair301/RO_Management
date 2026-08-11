@@ -1,0 +1,1366 @@
+{
+	"info": {
+		"_postman_id": "ro-management-api-v2-collection",
+		"name": "RO Management API v2 Collection",
+		"description": "Complete Postman Collection for RO Management API featuring full CRUD operations for Users, Roles, Departments, Permissions, Vendors, RO Forms, and Accounts.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000/api",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.collectionVariables.set('token', jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Login Success Response",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"success\": true,\n  \"message\": \"Login Successfully\",\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"data\": {\n    \"id\": 1,\n    \"username\": \"Admin\",\n    \"email\": \"admin@gmail.com\",\n    \"roles_id\": 1,\n    \"roles_name\": \"Admin\",\n    \"departments_id\": 1,\n    \"departments_name\": \"Management\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/refresh",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Admin - User Management",
+			"item": [
+				{
+					"name": "Get All Users (Index)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User (Store)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"accountant1\",\n  \"email\": \"accountant@example.com\",\n  \"password\": \"pass1234\",\n  \"first_name\": \"Jane\",\n  \"last_name\": \"Smith\",\n  \"roles_id\": 2,\n  \"departments_id\": 2,\n  \"primary_lead_id\": null,\n  \"secondary_lead_id\": null,\n  \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single User (Show)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/user/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"user",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User (Update)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Jane Updated\",\n  \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/user/edit/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"user",
+								"edit",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User (Destroy)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/user/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"user",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Admin - Roles Management",
+			"item": [
+				{
+					"name": "Get All Roles (Index)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/roles",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Role (Store - With Permissions)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Accounts\",\n  \"permissions\": [1, 2]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/roles",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Role (Show)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/roles/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"roles",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Role (Update - With Permissions)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Accounts Executive\",\n  \"permissions\": [1, 2, 3]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/roles/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"roles",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Role (Destroy)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/roles/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"roles",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Admin - Departments Management",
+			"item": [
+				{
+					"name": "Get All Departments (Index)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/departments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"departments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Department (Store)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Accounts\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/departments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"departments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Department (Show)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/departments/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"departments",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Department (Update)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Finance & Accounts\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/departments/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"departments",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Department (Destroy)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/departments/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"departments",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Admin - Permissions Management",
+			"item": [
+				{
+					"name": "Get All Permissions (Index)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/permissions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"permissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Permission (Store)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"view-accounts\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/permissions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"permissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Permission (Show)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/permissions/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"permissions",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Permission (Update)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"manage-accounts\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/permissions/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"permissions",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Permission (Destroy)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/permissions/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"permissions",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "6. Vendors Management",
+			"item": [
+				{
+					"name": "Get All Vendors (Index)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/vendor",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"vendor"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Vendor (Store)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vendor_name\": \"Global Media Networks\",\n  \"vendor_address\": \"123 Tech Street, Mumbai\",\n  \"vendor_gst_no\": \"27AAAAA0000A1Z5\",\n  \"vendor_contact\": \"+919876543210\",\n  \"vendor_email\": \"contact@globalmedia.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/vendor",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"vendor"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Vendor (Show)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/vendor/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"vendor",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Vendor (Update)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vendor_name\": \"Global Media Networks Pvt Ltd\",\n  \"vendor_contact\": \"+919876543211\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/vendor/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"vendor",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Vendor (Destroy)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/vendor/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"vendor",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "7. RO Forms Management",
+			"item": [
+				{
+					"name": "Get All RO Forms (Index)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/roForm?search=&status=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roForm"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "status",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create RO Form (Store - CPM calculation)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vendor_id\": 1,\n  \"client_name\": \"Acme Corporation\",\n  \"service\": \"Digital Display Ads\",\n  \"ad_type\": \"Banner\",\n  \"ad_unit\": \"300x250\",\n  \"buy_type\": \"CPM\",\n  \"deliverables\": \"impressions\",\n  \"volume\": 100000,\n  \"bid\": 2.50,\n  \"completion_date\": \"2026-09-15\",\n  \"buying_price\": 200000,\n  \"selling_price\": 250000,\n  \"commission_percent\": 10\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/roForm",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roForm"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single RO Form (Show)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/roForm/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roForm",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update RO Form (Update)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"volume\": 150000,\n  \"bid\": 3.00\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/roForm/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roForm",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Approve RO Form",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/roForm/1/approve",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roForm",
+								"1",
+								"approve"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reject RO Form",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rejection_reason\": \"Budget exceeded\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/roForm/1/reject",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roForm",
+								"1",
+								"reject"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel RO Form",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cancellation_reason\": \"Client cancelled campaign\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/roForm/1/cancel",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roForm",
+								"1",
+								"cancel"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete RO Form (Destroy)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/roForm/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roForm",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "8. Accounts Department",
+			"item": [
+				{
+					"name": "Get All Accounts Records (Index)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/accounts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"accounts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Account Record (Store)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ro_form_id\": 1,\n  \"bill_name\": \"Anvis Invoice #1001\",\n  \"anvis_invoice\": \"INV-1001\",\n  \"anvis_invoice_date\": \"2026-08-11\",\n  \"anvis_status\": \"Paid\",\n  \"vendor_invoice\": \"VI-5001\",\n  \"vendor_invoice_date\": \"2026-08-10\",\n  \"vendor_status\": \"Pending\",\n  \"external_amount\": 25000,\n  \"executive\": \"Accounts Officer\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/accounts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"accounts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Account Record (Show)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/accounts/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"accounts",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Account Record (Update)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vendor_status\": \"Paid\",\n  \"anvis_status\": \"Cleared\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/accounts/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"accounts",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Account Record (Destroy)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/accounts/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"accounts",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

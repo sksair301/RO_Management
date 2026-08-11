@@ -72,10 +72,7 @@ class JwtService{
         );
 
         if(!hash_equals($expected,$signature)){
-            return response()->json([
-                'success'=>FALSE,
-                'message'=>'Invalid Token',
-            ],401);
+            return null;
         }
 
         $payload = json_decode($this->base64UrlDecode($payload),true);

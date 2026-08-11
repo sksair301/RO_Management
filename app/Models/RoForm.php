@@ -8,7 +8,7 @@ class RoForm extends Model
 {
     protected $fillable = [
         'ro_number',
-        
+
         'departments_id',
         'vendor_id',
         'vendor_name',
@@ -50,6 +50,11 @@ class RoForm extends Model
         'rejection_reason',
         'cancellation_reason',
     ];
+
+    public function account(){
+
+        return $this->belongsTo(Accounts::class);
+    }
 
     public function vendor(){
 

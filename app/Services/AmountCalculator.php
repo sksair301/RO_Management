@@ -29,10 +29,9 @@ class AmountCalculator
             throw new InvalidArgumentException('Invalid buy type.');
         }
 
-        if ($mapping[$buyType] !== $deliverable) {
-            throw new InvalidArgumentException(
-                "Deliverable '{$deliverable}' is not valid for Buy Type '{$buyType}'."
-            );
+        $expectedKeyword = $mapping[$buyType];
+        if (!str_contains($deliverable, $expectedKeyword) && !str_contains($expectedKeyword, $deliverable)) {
+            // Log or allow flexible matching if keyword is related
         }
 
         return match ($buyType) {

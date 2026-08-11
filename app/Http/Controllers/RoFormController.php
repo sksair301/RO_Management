@@ -28,6 +28,20 @@ class RoFormController extends Controller
         $query = RoForm::with(
             'department', 'primaryLead', 'secondaryLead',
             'createdBy', 'updatedBy', 'rejectedBy', 'cancelledBy');
+            
+        $search = trim($request->search);
+
+        if(!empty($search)){
+            $query->where('ro_number' , 'like' , '%' .$search. '%')
+            ->orWhere('vendor_name', 'like', '%' .$search. '%')
+            ->orWhere('client_name', 'like', '%' .$search. '%');
+        }
+
+        $status = request('status');
+
+        if($status){
+            $query->where('status', $status);
+        }
 
         $role = strtolower($user->roles->name);
 
@@ -308,5 +322,121 @@ class RoFormController extends Controller
             'message'=>'Successfully approved',
             'data'=>$roForm->fresh()
         ]);
+    }
+
+    public function reject(Request $request, $id)
+    {
+        $user = $request->attributes->get('user');
+
+        $roForm = RoForm::find($id);
+
+        if(!$roForm){
+            return response()->json([
+                'success'=>false,
+                'message'=> 'Ro form not found'
+            ],404);
+        }
+
+        $valid = Validator::make($request->all(),[
+            'rejection_reason' => 'required|string|max:255'
+        ]);
+
+        if($valid->fails()){
+            return response()->json([
+                'success'=>false,
+                'message'=>'Validation error',
+                'error'=>$valid->errors()
+            ],422 );
+        }
+
+        $reason = $valid->validated();
+
+        if(
+            $user->id != $roForm->primary_lead_id &&
+            $user->id != $roForm->secondary_lead_id
+        ){
+            return response()->json([
+                'success' => false,
+                'message' => 'Only assigned leads can reject'
+            ],403);
+        }
+
+        if($roForm->status != 'pending'){
+            return response()->json([
+                'success'=>false,
+                'message'=>'Only pending forms can rejected'
+            ],404);
+        }
+
+        $roForm->update([
+            'status'=>'rejected',
+            'rejected_by'=>$user->id,
+            'rejection_reason'=>$reason['rejection_reason'],
+            'rejected_at'=> now()
+        ]);
+
+        return response()->json([
+            'success'=>true,
+            'message'=>'Ro form rejected',
+            'data'=>$roForm->fresh()
+        ],200);
+    }
+
+    public function cancel(Request $request, $id)
+    {
+        $user = $request->attributes->get('user');
+
+        $roForm = RoForm::find($id);
+
+        if(!$roForm){
+            return response()->json([
+                'success'=>false,
+                'message'=>'Ro Form not found'
+            ],404);
+        }
+
+        $valid = Validator::make($request->all(),[
+            'cancellation_reason'=> 'required|string|max:255'
+        ]);
+
+        if($valid->fails()){
+            return response()->json([
+                'success'=>false,
+                'message'=>'Validation error',
+                'data'=>$valid->errors()
+            ],422);
+        }
+
+        $reason = $valid->validated();
+
+        if(
+            $user->id != $roForm->primary_lead_id &&
+            $user->id != $roForm->secondary_lead_id
+        ){
+            return response()->json([
+                'success'=>false,
+                'message'=>'Only assigned lead can cancelled'
+            ],422);
+        }
+
+        if($roForm->status != 'pending'){
+            return response()->json([
+                'success'=>false,
+                'message'=>'Only pending Ro forms can be cancelled'
+            ],404);
+        }
+
+        $roForm->update([
+            'status'=>'cancelled',
+            'cancelled_by'=>$user->id,
+            'cancellation_reason'=> $reason['cancellation_reason'],
+            'cancelled_at' => now()
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message'=>'Successfully cancel',
+            'data'=>$roForm->fresh()
+        ],200);
     }
 }

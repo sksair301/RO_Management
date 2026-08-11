@@ -22,27 +22,27 @@ class JwtMiddleware
 
         if(!$token){
             return response()->json([
-                'success'=>False,
-                'message'=>'Inavlid Token'
+                'success'=>false,
+                'message'=>'Invalid Token'
             ],401);
         }
 
-        $jwt = New JwtService();
+        $jwt = new JwtService();
 
         $payload = $jwt->verifyToken($token);
 
         if($payload === null){
             return response()->json([
-                'success'=>False,
-                'message'=>'Inavlid Token'
+                'success'=>false,
+                'message'=>'Invalid Token'
             ],401);
         }
 
-        $user = User::find($payload['id']);
+        $user = User::with(['roles', 'departments'])->find($payload['id']);
 
         if(!$user){
             return response()->json([
-                'success'=> False,
+                'success'=> false,
                 'message'=>'User not found'
             ],404);
         }

@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
-            $table->string('billname');
+            $table->foreignId('ro_form_id')->unique()->constrained()->cascadeOnDelete();
+            $table->string('bill_name');
             $table->string('anvis_invoice');
             $table->date('anvis_invoice_date');
             $table->string('anvis_status');

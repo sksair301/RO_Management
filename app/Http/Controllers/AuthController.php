@@ -37,25 +37,26 @@ class AuthController extends Controller
 
         if(!Hash::check($request->password, $user->password)){
             return response()->json([
-                'sucess'=> False,
+                'success'=> false,
                 'message' => 'Invalid email or password'
             ],401);
         }
 
+        $user->load(['roles', 'departments']);
         $token = $jwt->generateToken($user);
 
         return response()->json([
-            'success'=>True,
+            'success'=>true,
             'message'=> 'Login Successfully',
             'token'=>$token,
             'data'=>[
                 'id'=>$user->id,
                 'username'=>$user->username,
                 'email'=>$user->email,
-                'password'=>$user->password,
                 'roles_id'=>$user->roles_id,
-                'departments_id'=>$user->departments_id
-
+                'roles_name'=>$user->roles?->name,
+                'departments_id'=>$user->departments_id,
+                'departments_name'=>$user->departments?->name,
             ]
         ]);
 
@@ -67,7 +68,7 @@ class AuthController extends Controller
 
         if(!$token){
             return response()->json([
-                'success'=> False,
+                'success'=> false,
                 'message'=>'Invalid token'
             ],401);
         }
@@ -76,22 +77,22 @@ class AuthController extends Controller
 
         if(!$payload){
             return response()->json([
-                'success'=> False,
-                'message'=>'Inavlid Token'
+                'success'=> false,
+                'message'=>'Invalid Token'
             ],401);
         }
 
-        $user = User::find($payload['id']);
+        $user = User::with(['roles', 'departments'])->find($payload['id']);
 
         if(!$user){
             return response()->json([
-                'success'=> False,
+                'success'=> false,
                 'message'=>'User not found'
             ],404);
         }
 
         return response()->json([
-            'success'=>True,
+            'success'=>true,
             'message'=>'Profile fetched Successfully',
             'data'=>$user
         ],200);
@@ -101,10 +102,10 @@ class AuthController extends Controller
     public function refresh(Request $request, JwtService $jwt){
         $token = $request->bearerToken();
 
-        if(!token){
+        if(!$token){
             return response()->json([
-                'success'=>False,
-                'message'=>'Inavlid Token'
+                'success'=>false,
+                'message'=>'Invalid Token'
             ],401);
         }
 
@@ -112,8 +113,8 @@ class AuthController extends Controller
 
         if(!$payload){
             return response()->json([
-                'success'=>False,
-                'Message'=>'Inavlid Token'
+                'success'=>false,
+                'message'=>'Invalid Token'
             ],401);
         }
 

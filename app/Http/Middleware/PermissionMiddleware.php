@@ -21,19 +21,24 @@ class PermissionMiddleware
 
         if(!$user){
             return response()->json([
-                'success'=>False,
+                'success'=>false,
                 'message'=>'Unauthorized'
             ],401);
         }
 
+        // Admin role bypass
+        if (strtolower($user->roles?->name ?? '') === 'admin') {
+            return $next($request);
+        }
+
         $permissionsIds = Permissions::whereIn('name',$permissions)->pluck('id');
 
-        $hasPermisssion = RolePermissions::where('roles_id',$user['roles_id'])
+        $hasPermission = RolePermissions::where('roles_id',$user->roles_id)
          ->whereIn('permissions_id',$permissionsIds)->exists();
 
-        if(!$hasPermisssion){
+        if(!$hasPermission){
             return response()->json([
-                'success'=>False,
+                'success'=>false,
                 'message'=>'Permission Denied'
             ],403);
         }
