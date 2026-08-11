@@ -8,9 +8,20 @@ use App\Services\AmountCalculator;
 use App\Services\RoNumberGenerator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Routing\Controllers\HasMiddleware;
 
-class RoFormController extends Controller
+class RoFormController extends Controller implements HasMiddleware
 {
+    public static function middleware():array{
+
+        return[
+            new Middleware ('permissions:view-ro-form', only:['index','show']),
+            new Middleware ('permissions:create-ro-form', only:['store']),
+            new Middleware ('permissions:edit-ro-form', only:['update']),
+            new Middleware ('permissions:delete-ro-form', only:['destroy'])
+        ];
+    }
     protected $amountCalculator;
 
     protected $roNumberGenerator;
@@ -26,9 +37,10 @@ class RoFormController extends Controller
         $user = $request->attributes->get('user');
 
         $query = RoForm::with(
-            'department', 'primaryLead', 'secondaryLead',
-            'createdBy', 'updatedBy', 'rejectedBy', 'cancelledBy');
-            
+            'department:id,name', 'primaryLead:id,first_name,last_name', 'secondaryLead:id,first_name,last_name',
+            'createdBy:id,first_name,last_name', 'updatedBy:id,first_name,last_name',
+            'rejectedBy:id,first_name,last_name', 'cancelledBy:id,first_name,last_name');
+
         $search = trim($request->search);
 
         if(!empty($search)){

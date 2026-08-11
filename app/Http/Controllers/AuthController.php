@@ -42,6 +42,13 @@ class AuthController extends Controller
             ],401);
         }
 
+        if ($user->status !== 'active') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your account is inactive. Please contact the administrator.'
+            ], 403);
+        }
+
         $user->load(['roles', 'departments']);
         $token = $jwt->generateToken($user);
 

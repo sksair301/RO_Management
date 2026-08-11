@@ -12,8 +12,11 @@ use App\Http\Controllers\RoFormController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AccountsController;
 
-// Auth Routes
+
 Route::post('/login', [AuthController::class, 'login']);
+
+Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 
 Route::middleware(['jwt'])->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
@@ -21,7 +24,6 @@ Route::middleware(['jwt'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 
-// Admin Routes (Users, Roles, Departments, Permissions)
 Route::middleware(['jwt'])->prefix('admin')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'adminDashboard']);
@@ -37,7 +39,7 @@ Route::middleware(['jwt'])->prefix('admin')->group(function () {
     Route::get('/roles', [RolesController::class, 'index']);
     Route::post('/roles', [RolesController::class, 'store']);
     Route::get('/roles/{id}', [RolesController::class, 'show']);
-    Route::patch('/roles/{id}', [RolesController::class, 'update']);
+    Route::patch('/roles/edit/{id}', [RolesController::class, 'update']);
     Route::delete('/roles/{id}', [RolesController::class, 'destroy']);
 
     // Departments CRUD
@@ -52,7 +54,6 @@ Route::middleware(['jwt'])->prefix('admin')->group(function () {
 
 });
 
-// Vendor & RO Form Routes
 Route::middleware(['jwt'])->group(function () {
 
     // Vendor CRUD
@@ -74,7 +75,7 @@ Route::middleware(['jwt'])->group(function () {
     Route::patch('/roForm/{id}/cancel', [RoFormController::class, 'cancel']);
 });
 
-// Accounts Department Routes (CRUD - Managed by Controller Middleware)
+
 Route::middleware(['jwt'])->prefix('accounts')->group(function () {
     Route::get('/', [AccountsController::class, 'index']);
     Route::post('/', [AccountsController::class, 'store']);

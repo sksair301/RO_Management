@@ -13,8 +13,8 @@ class AccountsController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('permission:view-accounts', only: ['index', 'show']),
-            new Middleware('permission:manage-accounts', only: ['store', 'update', 'destroy']),
+            new Middleware('permissions:view-accounts', only: ['index', 'show']),
+            new Middleware('permissions:manage-accounts', only: ['store', 'update', 'destroy']),
         ];
     }
 

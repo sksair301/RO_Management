@@ -5,9 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Routing\Controllers\HasMiddleware;
 
 class VendorController extends Controller
 {
+    public static function middleware():array{
+        return [
+            new Middleware('permissions:view-vendor', only:['index','show']),
+            new Middleware('permissions:create-vendor', only:['store']),
+            new Middleware('permissions:edit-vendor', only:['update']),
+            new Middleware('permissions:delete-vendor', only:['destroy']),
+        ];
+    }
 
     public function index()
     {

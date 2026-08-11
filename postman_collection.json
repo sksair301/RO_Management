@@ -207,6 +207,46 @@
 			]
 		},
 		{
+			"name": "Admin - Dashboard",
+			"item": [
+				{
+					"name": "Get Admin Dashboard Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/dashboard",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"dashboard"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Dashboard Stats Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"success\": true,\n  \"message\": \"Dashboard data fetched successfully\",\n  \"data\": {\n    \"total_users\": 10,\n    \"total_roles\": 4,\n    \"total_departments\": 4,\n    \"total_ro_forms\": 25,\n    \"total_vendors\": 8\n  }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
 			"name": "Admin - Roles",
 			"item": [
 				{

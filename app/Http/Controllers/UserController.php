@@ -22,7 +22,10 @@ class UserController extends Controller implements HasMiddleware
         ];
     }
     public function index(Request $request){
-        $query = User::with('departments','roles','primaryLead','secondaryLead');
+        $query = User::with('roles:id,name',
+            'departments:id,name',
+            'primaryLead:id,first_name,last_name',
+            'secondaryLead:id,first_name,last_name');
 
         $query->orderBy('created_at');
 
@@ -169,22 +172,22 @@ class UserController extends Controller implements HasMiddleware
         ],200);
     }
 
-    public function destroy($id){
+    // public function destroy($id){
 
-        $user = User::find($id);
+    //     $user = User::find($id);
 
-        if(!$user){
-            return response()->json([
-                'success'=>False,
-                'message'=>'user not found'
-            ],404);
-        }
+    //     if(!$user){
+    //         return response()->json([
+    //             'success'=>False,
+    //             'message'=>'user not found'
+    //         ],404);
+    //     }
 
-        $user->delete();
+    //     $user->delete();
 
-        return response()->json([
-            'success'=>True,
-            'message'=>'User deleted successfully'
-        ],200);
-    }
+    //     return response()->json([
+    //         'success'=>True,
+    //         'message'=>'User deleted successfully'
+    //     ],200);
+    // }
 }
