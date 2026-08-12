@@ -11,9 +11,9 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Border;
-use PhpOffice\PhpSpreadsheet\Style\Fills;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class AccountsExport implements FromCollection, WithHeading, ShouldAutoSize, WithStyles
+class AccountsExport implements FromCollection, WithHeadings, ShouldAutoSize, WithStyles
 {
     protected $fromDate;
     protected $toDate;
