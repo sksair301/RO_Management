@@ -2,44 +2,158 @@
 <html>
 
 <head>
-    <meta charset="UTF-8">
-    <title>Service Order</title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>{{ $roForm->ro_number }}</title>
 
     <style>
+        @page {
+            margin: 12mm;
+            size: a4 portrait;
+        }
+
         body {
-            font-family: DejaVu Sans, sans-serif;
-            font-size: 13px;
+            font-family: sans-serif;
+            font-size: 12px;
             color: #000;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .border {
+            margin: 0;
+            padding-bottom: 5px;
             border: 1px solid #000;
         }
 
-        .center {
-            text-align: center;
+        table {
+            border-collapse: collapse;
         }
 
-        .right {
-            text-align: right;
+        .page {
+            width: 100%;
+        }
+
+        .page td {
+            vertical-align: top;
+        }
+
+        .header {
+            width: 100%;
+        }
+
+        .header td {
+            border: none;
+        }
+
+        .logo {
+            text-align: center;
+            padding-top: 10px;
+        }
+
+        .company {
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            padding-top: 4px;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .address {
+            text-align: center;
+            font-size: 12px;
+            padding-top: 3px;
+        }
+
+        .gst {
+            text-align: center;
+            font-size: 12px;
+            padding-bottom: 10px;
+        }
+
+        .content {
+            padding-left: 18px;
+            padding-right: 18px;
+            padding-bottom: 15px;
+        }
+
+        .info {
+            width: 100%;
+        }
+
+        .info td {
+            border: none;
+            padding: 7px 0;
+            line-height: 18px;
         }
 
         .bold {
             font-weight: bold;
         }
 
-        .mt20 {
+        .service-table {
+            border: 2px solid #000;
+            width: 100%;
+            padding: 10px;
+            border-collapse: collapse;
+            margin-top: 6px;
+            margin-bottom: 8px;
+        }
+
+        .service-table th {
+            border: 2px solid #000;
+            padding: 10px;
+            line-height: 18px;
+            font-size: 12px;
+        }
+
+        .service-table td {
+            border: 2px solid #000;
+            padding: 10px;
+            line-height: 18px;
+            font-size: 12px;
+        }
+
+        .left {
+            text-align: left;
+        }
+
+        p {
+            margin: 0 0 6px 0;
+            font-size: 12px;
+            line-height: 18px;
+        }
+
+        ol {
+            margin-top: 5px;
+            margin-left: 18px;
+            padding-left: 0;
+        }
+
+        ol li {
+            margin-bottom: 6px;
+            line-height: 18px;
+            font-size: 12px;
+        }
+
+        img {
+            vertical-align: middle;
+        }
+
+        br {
+            line-height: 10px;
+        }
+
+        .footer {
+            width: 100%;
             margin-top: 20px;
         }
 
-        td {
-            padding: 6px;
+        .footer td {
+            border: none;
             vertical-align: top;
+            font-size: 12px;
         }
     </style>
 
@@ -47,300 +161,358 @@
 
 <body>
 
-    <table>
-
-        <tr>
-
-            <td width="25%">
-
-                <img src="{{ storage_path('app/public/logo/anvis-logo.png') }}" width="150">
-
-            </td>
-
-            <td width="75%" class="right">
-
-                <h2>ANVIS DIGITAL PVT. LTD.</h2>
-
-                314 - Parvati Industrial Estate<br>
-
-                New Sun Mill Compound<br>
-
-                Lower Parel, Mumbai - 400013
-
-                <br>
-
-                GST : 27AAMCA3257A1ZX
-
-            </td>
-
-        </tr>
-
-    </table>
-
-    <br>
-    <h2 class="center">
-
-        Service Order
-
-    </h2>
-
-    <table class="border">
-
-        <tr>
-
-            <td width="50%">
-
-                <b>Service Order No :</b>
-
-                {{ $roForm->ro_number }}
-
-            </td>
-
-            <td width="50%">
-
-                <b>Date :</b>
-
-                {{ \Carbon\Carbon::parse($roForm->created_at)->format('d-m-Y') }}
-
-            </td>
-
-        </tr>
-
-    </table>
-
-    <br>
-
-    <b>TO,</b>
-
-    <br><br>
-
-    {{ $roForm->vendor_name }}
-
-    <br>
-
-    {{ $roForm->vendor_address }}
-
-    <br>
-
-    GSTIN :
-
-    {{ $roForm->vendor_gst_no }}
-
-    <br>
-
-    Contact :
-
-    {{ $roForm->vendor_contact }}
-
-    <br>
-
-    Email :
-
-    {{ $roForm->vendor_email }}
-
-    <br><br>
-
-    Dear Sir/Madam's,
-
-    <br><br>
-
-    We hereby place an order on you for the following services on the terms & conditions attached with this.
-
-    <br><br>
-
-    <b>Service Description</b>
-
-    <br><br>
-
-    <b>Client Name :</b>
-
-    {{ $roForm->client_name }}
-
-    <br><br>
-
-    <table border="1" cellspacing="0" cellpadding="6">
-
-        <thead>
-
-            <tr style="background:#eeeeee">
-
-                <th>Service</th>
-
-                <th>Ad Type</th>
-
-                <th>Ad Unit</th>
-
-                <th>Deliverables</th>
-
-                <th>Volume</th>
-
-                <th>Bid</th>
-
-                <th>Amount</th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-            <tr>
-
-                <td>{{ $roForm->service }}</td>
-
-                <td>{{ $roForm->ad_type }}</td>
-
-                <td>{{ $roForm->ad_unit }}</td>
-
-                <td>{{ $roForm->deliverables }}</td>
-
-                <td>{{ $roForm->volume }}</td>
-
-                <td>₹ {{ number_format($roForm->bid, 2) }}</td>
-
-                <td>₹ {{ number_format($roForm->total_amount, 2) }}</td>
-
-            </tr>
-
-        </tbody>
-
-    </table>
-
-    <br>
-
-    <table>
-
-        <tr>
-
-            <td width="50%">
-
-                <b>Buying Price</b>
-
-            </td>
-
-            <td>
-
-                ₹ {{ number_format($roForm->buying_price, 2) }}
-
-            </td>
-
-        </tr>
+    <table class="page">
 
         <tr>
 
             <td>
 
-                <b>Selling Price</b>
+                <table class="header" width="100%">
 
-            </td>
+                    <tr>
 
-            <td>
+                        <td class="logo">
 
-                ₹ {{ number_format($roForm->selling_price, 2) }}
+                            <img src="{{ storage_path('app/public/logo/anvis-logo.png') }}" width="165">
 
-            </td>
+                        </td>
 
-        </tr>
+                    </tr>
 
-        <tr>
+                    <tr>
 
-            <td>
+                        <td class="company">
 
-                <b>Commission</b>
+                            ANVIS DIGITAL PVT.LTD
 
-            </td>
+                        </td>
 
-            <td>
+                    </tr>
 
-                {{ $roForm->commission_percent }} %
+                    <tr>
 
-            </td>
+                        <td class="title">
 
-        </tr>
+                            Service Order
 
-    </table>
+                        </td>
 
-    <br>
+                    </tr>
 
-    <b>Delivery / Job Completion Date :</b>
+                    <tr>
 
-    {{ \Carbon\Carbon::parse($roForm->completion_date)->format('d-m-Y') }}
+                        <td class="address">
 
-    <br><br>
+                            314 - Parvati Industrial Estate,
+                            New Sun Mill Compound,
+                            Lower Parel,
+                            Mumbai,
+                            INDIA - 400013
 
-    <b>Payment Terms & Conditions :</b>
+                        </td>
 
-    <ol style="font-size:12px; line-height:20px;">
+                    </tr>
 
-        <li>Above price is net to ANVIS DIGITAL PVT. LTD. Exclusive of all applicable Government taxes.</li>
+                    <tr>
 
-        <li>Payment Terms : Net 60 Days.</li>
+                        <td class="gst">
 
-        <li>Publisher must provide reporting screenshots or access to the reporting interface.</li>
+                            GST : 27AAMCA3257A1ZX
 
-        <li>RO details should remain confidential between both parties and must not be disclosed to any third party.
-        </li>
+                        </td>
 
-    </ol>
+                    </tr>
 
-    <br>
+                </table>
 
-    Please sign and return the duplicate copy of this Service Order as a token of your acceptance.
+                <div class="content">
 
-    <br><br><br>
+                    <table class="info">
 
-    <table width="100%">
+                        <tr>
 
-        <tr>
+                            <td width="70%">
 
-            <td width="50%" align="left">
+                                <b>Service Order No :
+                                    {{ $roForm->ro_number }}</b>
 
-                <b>For ANVIS DIGITAL PVT. LTD.</b>
+                            </td>
 
-                <br><br><br>
+                            <td>
 
-                <img src="{{ storage_path('app/public/signatures/sign.png') }}" width="180" height="70">
+                                <b>Date :</b>
 
-                <br>
+                                {{ \Carbon\Carbon::parse($roForm->created_at)->format('M. d, Y') }}
 
-                <b>Authorized Signatory</b>
+                            </td>
 
-            </td>
+                        </tr>
 
-            <td width="50%" align="center">
+                    </table>
 
-                <br><br><br><br><br><br>
+                    <br>
 
-                _____________________________
+                    <p>TO,</p>
 
-                <br>
+                    <p class="bold">
 
-                <b>Signature of Seller</b>
+                        {{ $roForm->vendor_name }}
 
-            </td>
+                    </p>
 
-        </tr>
+                    <p>
 
-    </table>
+                        {{ $roForm->vendor_address }}
 
-    <br><br>
+                    </p>
 
-    <table width="100%">
+                    <p>
 
-        <tr>
+                        <b>GSTIN :</b>
 
-            <td>
+                        {{ $roForm->vendor_gst_no }}
 
-                Created By :
-                <b>{{ $roForm->createdBy->first_name ?? '' }} {{ $roForm->createdBy->last_name ?? '' }}</b>
+                    </p>
 
-            </td>
+                    <p>
 
-            <td align="right">
+                        <b>Contact :</b>
 
-                Approval Status :
+                        {{ $roForm->vendor_contact }}
 
-                <b>{{ ucfirst($roForm->status) }}</b>
+                    </p>
+
+                    <p>
+
+                        <b>Email id -</b>
+
+                        {{ $roForm->vendor_email }}
+
+                    </p>
+
+                    <br>
+
+                    <p>
+
+                        Dear Sir/s
+
+                    </p>
+
+                    <p>
+
+                        We hereby place an order on you for the following services on the terms &
+                        conditions attached with this.
+
+                    </p>
+
+                    <p style="margin-bottom:8px;">
+                        <b>Service Description:</b>
+                    </p>
+
+                    <p>
+
+                    <p style="margin-bottom:10px;">
+                        <b>Client's Name :- {{ $roForm->client_name }}</b>
+                    </p>
+
+                    </p>
+
+                    <table class="service-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th width="22%">Service</th>
+
+                                <th width="12%">Ad Type</th>
+
+                                <th width="12%">Ad Unit</th>
+
+                                <th width="18%">Deliverables</th>
+
+                                <th width="10%">Volume</th>
+
+                                <th width="13%">Bid</th>
+
+                                <th width="13%">Amount</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+
+                                <td class="left">
+                                    {{ $roForm->service }}
+                                </td>
+
+                                <td>
+                                    {{ $roForm->ad_type }}
+                                </td>
+
+                                <td>
+                                    {{ $roForm->ad_unit }}
+                                </td>
+
+                                <td>
+                                    {{ $roForm->deliverables }}
+                                </td>
+
+                                <td>
+                                    {{ number_format($roForm->volume, 2) }}
+                                </td>
+
+                                <td>
+                                    {{ number_format($roForm->bid, 2) }}
+                                </td>
+
+                                <td>
+                                    {{ number_format($roForm->total_amount, 2) }}
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                    <br>
+
+                    <table width="100%" style="border:none;">
+
+                        <tr>
+
+                            <td style="border:none;padding:0;">
+
+                                <b>Delivery/job completion date :</b>
+
+                                {{ \Carbon\Carbon::parse($roForm->completion_date)->format('d-m-Y') }}
+
+                            </td>
+
+                        </tr>
+
+                    </table>
+
+                    <br>
+
+                    <p>
+
+                        <b>Payment terms &amp; conditions :</b>
+
+                    </p>
+
+                    <ol>
+
+                        <li>
+
+                            Above price is net to ANVIS DIGITAL PVT.LTD.
+                            Exclusive of any Govt. Taxes.
+
+                        </li>
+
+                        <li>
+
+                            Payment Terms : Net 60 Days.
+
+                        </li>
+
+                        <li>
+
+                            Publisher to provide access to reporting interface/screenshots.
+
+                        </li>
+
+                        <li>
+
+                            RO Details should be kept confidential between the two involved parties.
+                            It shouldn't be disclosed to any other party.
+
+                        </li>
+
+                    </ol>
+
+                    <br>
+
+                    <p>
+
+                        Please sign &amp; return the duplicate copy of this Service Order
+                        as token of your acceptance.
+
+                    </p>
+
+                    <br><br>
+
+                    <table class="footer" width="100%">
+
+                        <tr>
+
+                            <td width="50%" align="left">
+
+                                <b>
+
+                                    For ANVIS Digital Pvt.Ltd.
+
+                                </b>
+
+                                <br><br><br>
+
+                                <img src="{{ storage_path('app/public/signatures/sign.png') }}" width="120">
+
+                                <br><br>
+
+                                <b>
+
+                                    Authorized Signatory
+
+                                </b>
+
+                                <br><br>
+
+                                Created by :
+
+                                {{ $roForm->createdBy->first_name ?? '' }}
+
+                                {{ $roForm->createdBy->last_name ?? '' }}
+
+                                <br>
+
+                                Approval Status :
+
+                                {{ ucfirst($roForm->status) }}
+
+                            </td>
+
+                            <td width="50%" align="right">
+
+                                <b>
+
+                                    Accepted &amp; Confirmed
+
+                                </b>
+
+                                <br><br><br><br><br><br><br>
+
+                                _____________________
+
+                                <br><br>
+
+                                <b>
+
+                                    Signature of Seller
+
+                                </b>
+
+                            </td>
+
+                        </tr>
+
+                    </table>
+
+                </div>
 
             </td>
 
