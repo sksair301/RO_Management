@@ -3,23 +3,26 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Models\RoForm;
 
-class ResetPasswordMail extends Mailable
+class RoFormMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $resetLink;
+    public $roForm;
+    public $roFormUrl;
 
-    /**
-     * Create a new message instance.
-     */
-    public function __construct($resetLink)
+    public function __construct(RoForm $roForm)
     {
-        $this->resetLink = $resetLink;
+        $this->roForm = $roForm;
+
+        $this->roFormUrl = env('FRONTEND_URL') . '/ro-From/' . $roForm->id;
     }
 
     /**
@@ -28,7 +31,7 @@ class ResetPasswordMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reset Your Password',
+            subject: 'New RO Form - ' . $this->roForm->ro_number,
         );
     }
 
@@ -38,12 +41,14 @@ class ResetPasswordMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'email.reset-password',
+            view: 'email.ro-form',
         );
     }
 
     /**
-     * Get the attachments.
+     * Get the attachments for the message.
+     *
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {

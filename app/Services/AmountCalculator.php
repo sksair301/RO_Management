@@ -10,7 +10,8 @@ class AmountCalculator
         string $buyType,
         string $deliverable,
         float $volume,
-        float $bid
+        float $bid,
+        float $buyingPrice
     ): float {
 
         $buyType = strtoupper(trim($buyType));
@@ -26,19 +27,32 @@ class AmountCalculator
         ];
 
         if (!isset($mapping[$buyType])) {
-            throw new InvalidArgumentException('Invalid buy type.');
+            throw new InvalidArgumentException('Invalid Buy Type.');
         }
 
-        $expectedKeyword = $mapping[$buyType];
-        if (!str_contains($deliverable, $expectedKeyword) && !str_contains($expectedKeyword, $deliverable)) {
-            // Log or allow flexible matching if keyword is related
+        // Validate Buy Type & Deliverable
+        if ($mapping[$buyType] !== $deliverable) {
+            throw new InvalidArgumentException(
+                "Deliverable '{$deliverable}' is not valid for Buy Type '{$buyType}'."
+            );
         }
 
-        return match ($buyType) {
-            'CPM'   => ($volume / 1000) * $bid,
-            'FIXED' => $bid,
-            default => $volume * $bid,
-        };
+        switch ($buyType) {
+
+            case 'CPM':
+                return ($volume * $bid) / 1000;
+
+            case 'FIXED':
+                return $buyingPrice;
+
+            case 'CPC':
+            case 'CPV':
+            case 'CPE':
+            case 'CPL':
+                return $volume * $bid;
+
+            default:
+                throw new InvalidArgumentException('Calculation not available.');
+        }
     }
 }
- 

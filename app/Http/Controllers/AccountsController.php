@@ -2,18 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AccountsExport;
 use App\Models\Accounts;
+use App\Models\RoForm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+
+use Maatwebsite\Excel\Facades\Excel;
 
 class AccountsController extends Controller implements HasMiddleware
 {
     public static function middleware(): array
     {
         return [
-            new Middleware('permissions:view-accounts', only: ['index', 'show']),
+            new Middleware('permissions:view-accounts', only: ['index', 'show', 'export']),
             new Middleware('permissions:manage-accounts', only: ['store', 'update', 'destroy']),
         ];
     }
@@ -194,5 +198,33 @@ class AccountsController extends Controller implements HasMiddleware
             'success' => true,
             'message' => 'Accounts deleted successfully'
         ], 200);
+    }
+
+    public function export(Request $request)
+    {
+        if ($authError = $this->authorizeAccountsDepartment($request)) {
+            return $authError;
+        }
+
+        $valid = Validator::make($request->all(), [
+            'from_date' => 'nullable|date|date_format:Y-m-d',
+            'to_date'   => 'nullable|date|date_format:Y-m-d|after_or_equal:from_date',
+        ]);
+
+        if ($valid->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid date filter',
+                'errors'  => $valid->errors(),
+            ], 422);
+        }
+
+        return Excel::download(
+            new AccountsExport(
+                $request->from_date,
+                $request->to_date
+            ),
+            'approved_ro' . now()->format('Y_m_d_H_i_s') . '.xlsx'
+        );
     }
 }

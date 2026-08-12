@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class RoForm extends Model
 {
+    protected $appends = ['invoice_generated'];
+
     protected $fillable = [
         'ro_number',
 
@@ -34,6 +37,7 @@ class RoForm extends Model
 
         'created_by',
         'updated_by',
+        'revision_count',
 
         'primary_lead_id',
         'secondary_lead_id',
@@ -51,9 +55,21 @@ class RoForm extends Model
         'cancellation_reason',
     ];
 
-    public function account(){
+    /**
+     * An RO form has at most one account/invoice entry.
+     */
+    public function account()
+    {
+        return $this->hasOne(Accounts::class, 'ro_form_id');
+    }
 
-        return $this->belongsTo(Accounts::class);
+    protected function invoiceGenerated(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->relationLoaded('account')
+                ? !is_null($this->account)
+                : $this->account()->exists(),
+        );
     }
 
     public function vendor(){

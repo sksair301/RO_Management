@@ -27,6 +27,7 @@ Route::middleware(['jwt'])->group(function () {
 Route::middleware(['jwt'])->prefix('admin')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'adminDashboard']);
+    Route::get('/accounts/export', [AccountsController::class, 'export']);
 
     // User CRUD
     Route::get('/user', [UserController::class, 'index']);
@@ -70,13 +71,17 @@ Route::middleware(['jwt'])->group(function () {
     Route::patch('/roForm/{id}', [RoFormController::class, 'update']);
     Route::delete('/roForm/{id}', [RoFormController::class, 'destroy']);
 
+    Route::post('/roForm/{id}/send-email', [RoFormController::class, 'sendEmail']);
     Route::patch('/roForm/{id}/approve', [RoFormController::class, 'approve']);
     Route::patch('/roForm/{id}/reject', [RoFormController::class, 'reject']);
     Route::patch('/roForm/{id}/cancel', [RoFormController::class, 'cancel']);
+
+    Route::post('/ro-form/{id}/send-to-accounts', [RoFormController::class, 'sendToAccounts']);
 });
 
 
 Route::middleware(['jwt'])->prefix('accounts')->group(function () {
+    Route::get('/export', [AccountsController::class, 'export']); // ?from_date=Y-m-d&to_date=Y-m-d
     Route::get('/', [AccountsController::class, 'index']);
     Route::post('/', [AccountsController::class, 'store']);
     Route::get('/{id}', [AccountsController::class, 'show']);

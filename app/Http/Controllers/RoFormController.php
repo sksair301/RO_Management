@@ -4,12 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\RoForm;
 use App\Models\Vendor;
+use App\Models\User;
 use App\Services\AmountCalculator;
 use App\Services\RoNumberGenerator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RoFormMail;
+
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
+
+use App\Mail\SendRoToAccountsMail;
 
 class RoFormController extends Controller implements HasMiddleware
 {
@@ -39,7 +47,8 @@ class RoFormController extends Controller implements HasMiddleware
         $query = RoForm::with(
             'department:id,name', 'primaryLead:id,first_name,last_name', 'secondaryLead:id,first_name,last_name',
             'createdBy:id,first_name,last_name', 'updatedBy:id,first_name,last_name',
-            'rejectedBy:id,first_name,last_name', 'cancelledBy:id,first_name,last_name');
+            'rejectedBy:id,first_name,last_name', 'cancelledBy:id,first_name,last_name',
+            'account:id,ro_form_id');
 
         $search = trim($request->search);
 
@@ -112,7 +121,7 @@ class RoFormController extends Controller implements HasMiddleware
         }
 
         $roNumber = $this->roNumberGenerator->generate();
-        $totalAmount = $this->amountCalculator->calculate($data['buy_type'], $data['deliverables'], $data['volume'], $data['bid']);
+        $totalAmount = $this->amountCalculator->calculate($data['buy_type'], $data['deliverables'], $data['volume'], $data['bid'], $data['buying_price']);
 
         $roForm = RoForm::create([
             'ro_number' => $roNumber,
@@ -158,7 +167,7 @@ class RoFormController extends Controller implements HasMiddleware
     {
         $user = $request->attributes->get('user');
 
-        $roForm = RoForm::with('createdBy', 'updatedBy', 'rejectedBy', 'cancelledBy')->find($id);
+        $roForm = RoForm::with('createdBy', 'updatedBy', 'rejectedBy', 'cancelledBy', 'account')->find($id);
 
         if (! $roForm) {
             return response()->json([
@@ -197,6 +206,22 @@ class RoFormController extends Controller implements HasMiddleware
                 'success' => false,
                 'message' => 'Form not found',
             ], 404);
+        }
+
+        $role = strtolower($user->roles->name);
+
+        if ($role != 'admin' && $roForm->departments_id != $user->departments_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not authorized to edit this RO Form.'
+            ], 403);
+        }
+
+        if (in_array($roForm->status, ['approved', 'cancelled'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This RO Form cannot be edited.'
+            ], 422);
         }
 
         if (in_array($roForm->status, ['approved', 'cancelled'])) {
@@ -252,11 +277,13 @@ class RoFormController extends Controller implements HasMiddleware
         $deliverables = $data['deliverables'] ?? $roForm->deliverables;
         $volume = $data['volume'] ?? $roForm->volume;
         $bid = $data['bid'] ?? $roForm->bid;
+        $buying_price = $data['buying_price'] ?? $roForm->buying_price;
 
-        $totalAmount = $this->amountCalculator->calculate($buy_type, $deliverables, $volume, $bid);
+        $totalAmount = $this->amountCalculator->calculate($buy_type, $deliverables, $volume, $bid, $buying_price);
 
         $data['total_amount'] = $totalAmount;
         $data['updated_by'] = $user->id;
+        $roForm->increment('revision_count');
 
         $roForm->update($data);
 
@@ -431,10 +458,10 @@ class RoFormController extends Controller implements HasMiddleware
             ],422);
         }
 
-        if($roForm->status != 'pending'){
+        if($roForm->status != 'pending' && $roForm->status != 'approved'){
             return response()->json([
                 'success'=>false,
-                'message'=>'Only pending Ro forms can be cancelled'
+                'message'=>'Only pending or approved Ro forms can be cancelled'
             ],404);
         }
 
@@ -450,5 +477,179 @@ class RoFormController extends Controller implements HasMiddleware
             'message'=>'Successfully cancel',
             'data'=>$roForm->fresh()
         ],200);
+    }
+
+    public function sendEmail($id)
+    {
+        $roForm = RoForm::with('primaryLead', 'secondaryLead')->find($id);
+
+        if(!$roForm){
+            return response()->json([
+                'success' =>false,
+                'message'=> 'Ro form not found'
+            ],404);
+        }
+
+        $emails=[];
+
+        if($roForm->primaryLead?->email){
+            $emails[] = $roForm->primaryLead->email;
+        }
+
+        if($roForm->secondaryLead?->email){
+            $emails[] = $roForm->secondaryLead->email;
+        }
+
+        if (empty($emails)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No lead email found.'
+            ], 404);
+        }
+
+        Mail::to($emails)->send(new RoFormMail($roForm));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Email sent successfully.'
+        ]);
+    }
+
+    public function generatePdf($id)
+    {
+        $roForm = RoForm::with([
+            'createdBy',
+            'vendor',
+            'primaryLead',
+            'secondaryLead'
+        ])->find($id);
+
+        if(!$roForm){
+            return response()->json([
+                'success'=>false,
+                'message'=>'Ro form nor found'
+            ],404);
+        }
+
+        $pdf = Pdf::loadView('pdf.ro-form', compact('roForm'));
+
+        $fileName = $roForm->ro_number . '.pdf';
+
+        $filePath = 'ro/' . $fileName;
+
+        Storage::disk('public')->put(
+            $filePath,
+            $pdf->output()
+        );
+
+        return response()->json([
+            'success' => true,
+            'file' => asset('storage/' . $filePath)
+        ]);
+    }
+
+    public function sendToAccounts(Request $request, $id)
+    {
+        $user = $request->attributes->get('user');
+
+        $roForm = RoForm::with([
+            'primaryLead',
+            'secondaryLead',
+            'createdBy',
+            'vendor'
+        ])->find($id);
+
+        if (!$roForm) {
+            return response()->json([
+                'success' => false,
+                'message' => 'RO Form not found.'
+            ], 404);
+        }
+
+        // Only assigned leads can send
+        if (
+            $user->id != $roForm->primary_lead_id &&
+            $user->id != $roForm->secondary_lead_id
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only assigned leads can send this RO to Accounts.'
+            ], 403);
+        }
+
+        // RO must be approved
+        if ($roForm->status !== 'approved') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only approved RO Forms can be sent to Accounts.'
+            ], 422);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Generate PDF
+        |--------------------------------------------------------------------------
+        */
+
+        $pdf = Pdf::loadView('pdf.ro-form', compact('roForm'));
+
+        $fileName = $roForm->ro_number . '.pdf';
+        $relativePath = 'ro/' . $fileName;
+
+        Storage::disk('public')->put(
+            $relativePath,
+            $pdf->output()
+        );
+
+        $pdfPath = storage_path('app/public/' . $relativePath);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Get Accounts Team Emails
+        |--------------------------------------------------------------------------
+        */
+
+        $emails = User::whereHas('departments', function ($query) {
+            $query->where('name', 'Accounts');
+        })
+        ->whereNotNull('email')
+        ->pluck('email')
+        ->toArray();
+
+        if (empty($emails)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No Accounts department email found.'
+            ], 404);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Send Email
+        |--------------------------------------------------------------------------
+        */
+
+        Mail::to($emails)->send(
+            new SendRoToAccountsMail($roForm, $pdfPath)
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Optional: Save audit information
+        |--------------------------------------------------------------------------
+        */
+
+        // Uncomment if these columns exist
+        /*
+        $roForm->update([
+            'sent_to_accounts_at' => now(),
+            'sent_to_accounts_by' => $user->id,
+        ]);
+        */
+
+        return response()->json([
+            'success' => true,
+            'message' => 'RO sent to Accounts successfully.'
+        ]);
     }
 }
