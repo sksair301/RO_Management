@@ -1,3 +1,13 @@
+@php
+    use NumberToWords\NumberToWords;
+
+    $numberToWords = new NumberToWords();
+
+    $numberTransformer = $numberToWords->getNumberTransformer('en');
+
+    $amountInWords = ucfirst($numberTransformer->toWords((int) $roForm->total_amount));
+@endphp
+
 <!DOCTYPE html>
 <html>
 
@@ -9,13 +19,13 @@
 
     <style>
         @page {
-            margin: 12mm;
+            margin: 5mm;
             size: a4 portrait;
         }
 
         body {
             font-family: sans-serif;
-            font-size: 12px;
+            font-size: 10px;
             color: #000;
             margin: 0;
             padding-bottom: 5px;
@@ -36,6 +46,10 @@
 
         .header {
             width: 100%;
+            line-height: 15px;
+            text-align: center;
+            font-size: 10px;
+            padding-top: 3px;
         }
 
         .header td {
@@ -44,58 +58,39 @@
 
         .logo {
             text-align: center;
-            padding-top: 10px;
-        }
-
-        .company {
-            text-align: center;
-            font-size: 14px;
-            font-weight: bold;
-            padding-top: 4px;
-        }
-
-        .title {
-            text-align: center;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .address {
-            text-align: center;
-            font-size: 12px;
-            padding-top: 3px;
-        }
-
-        .gst {
-            text-align: center;
-            font-size: 12px;
+            padding-top: 15px;
             padding-bottom: 10px;
         }
 
+        .company {
+            font-size: 14px;
+            padding-bottom: 10px;
+        }
+
+        .order {
+            font-size: 12px;
+            padding-bottom: 6px;
+        }
+
         .content {
-            padding-left: 18px;
-            padding-right: 18px;
-            padding-bottom: 15px;
+            padding: 2px 18px 12px 18px;
+            font-size: 10px;
         }
 
         .info {
-            width: 100%;
+            font-size: 10px;
         }
 
         .info td {
             border: none;
-            padding: 7px 0;
-            line-height: 18px;
+            padding: 3px 0;
+            line-height: 15px;
         }
 
-        .bold {
-            font-weight: bold;
-        }
 
         .service-table {
             border: 2px solid #000;
             width: 100%;
-            padding: 10px;
             border-collapse: collapse;
             margin-top: 6px;
             margin-bottom: 8px;
@@ -103,26 +98,25 @@
 
         .service-table th {
             border: 2px solid #000;
+            padding-inline: 10px;
             padding: 10px;
             line-height: 18px;
-            font-size: 12px;
+            font-size: 10px;
         }
 
         .service-table td {
             border: 2px solid #000;
             padding: 10px;
             line-height: 18px;
-            font-size: 12px;
+            font-size: 10px;
+            text-align: center;
         }
 
-        .left {
-            text-align: left;
-        }
 
         p {
-            margin: 0 0 6px 0;
+            margin: 0 0 3px 0;
             font-size: 12px;
-            line-height: 18px;
+            line-height: 16px;
         }
 
         ol {
@@ -153,7 +147,7 @@
         .footer td {
             border: none;
             vertical-align: top;
-            font-size: 12px;
+            font-size: 10px;
         }
     </style>
 
@@ -173,7 +167,7 @@
 
                         <td class="logo">
 
-                            <img src="{{ storage_path('app/public/logo/anvis-logo.png') }}" width="165">
+                            <img src="{{ storage_path('app/public/logo/logo.webp') }}" width="120">
 
                         </td>
 
@@ -183,7 +177,7 @@
 
                         <td class="company">
 
-                            ANVIS DIGITAL PVT.LTD
+                            <b>ANVIS DIGITAL PVT.LTD</b>
 
                         </td>
 
@@ -191,17 +185,15 @@
 
                     <tr>
 
-                        <td class="title">
+                        <td class="order">
 
-                            Service Order
+                            <b>Service Order</b>
 
                         </td>
-
                     </tr>
-
                     <tr>
 
-                        <td class="address">
+                        <td>
 
                             314 - Parvati Industrial Estate,
                             New Sun Mill Compound,
@@ -215,7 +207,7 @@
 
                     <tr>
 
-                        <td class="gst">
+                        <td>
 
                             GST : 27AAMCA3257A1ZX
 
@@ -231,91 +223,110 @@
 
                         <tr>
 
-                            <td width="70%">
-
+                            <td>
                                 <b>Service Order No :
                                     {{ $roForm->ro_number }}</b>
 
                             </td>
 
-                            <td>
+                        </tr>
 
-                                <b>Date :</b>
+                        <tr>
+                            <td>
+                                Date :
 
                                 {{ \Carbon\Carbon::parse($roForm->created_at)->format('M. d, Y') }}
 
                             </td>
-
                         </tr>
 
                     </table>
 
-                    <br>
 
-                    <p>TO,</p>
+                    <table class="info">
 
-                    <p class="bold">
+                        <tr>
 
-                        {{ $roForm->vendor_name }}
+                            <td>
+                                TO,
+                            </td>
 
-                    </p>
+                        </tr>
 
-                    <p>
+                        <tr>
+                            <td>
 
-                        {{ $roForm->vendor_address }}
+                                <b> {{ $roForm->vendor_name }} </b>
 
-                    </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
 
-                    <p>
+                                {{ $roForm->vendor_address }}
 
-                        <b>GSTIN :</b>
+                            </td>
+                        </tr>
 
-                        {{ $roForm->vendor_gst_no }}
+                        <tr>
+                            <td>
 
-                    </p>
+                                <b>GSTIN :
 
-                    <p>
+                                    {{ $roForm->vendor_gst_no }} </b>
 
-                        <b>Contact :</b>
+                            </td>
+                        </tr>
 
-                        {{ $roForm->vendor_contact }}
+                        <tr>
+                            <td>
 
-                    </p>
+                                <b>Contact :</b>
 
-                    <p>
+                                {{ $roForm->vendor_contact }}
+                            </td>
+                        </tr>
 
-                        <b>Email id -</b>
+                        <tr>
+                            <td>
 
-                        {{ $roForm->vendor_email }}
+                                <b>Email id -</b>
 
-                    </p>
+                                {{ $roForm->vendor_email }}
 
-                    <br>
+                            </td>
+                        </tr>
 
-                    <p>
+                    </table>
 
-                        Dear Sir/s
+                    <table width="100%" style="border:none; margin-top:8px; border-collapse:collapse;">
 
-                    </p>
+                        <tr>
+                            <td style="border:none; padding:3px 0;">
+                                Dear Sir/s,
+                            </td>
+                        </tr>
 
-                    <p>
+                        <tr>
+                            <td style="border:none; padding:5px 0; text-align:justify;">
+                                We hereby place an order on you for the following services on the
+                                terms &amp; conditions attached with this:
+                            </td>
+                        </tr>
 
-                        We hereby place an order on you for the following services on the terms &
-                        conditions attached with this.
+                        <tr>
+                            <td style="border:none; padding:5px 0 3px 0;">
+                                <strong>Service Description:</strong>
+                            </td>
+                        </tr>
 
-                    </p>
+                        <tr>
+                            <td style="border:none; padding:3px 0 8px 0;">
+                                <strong>Client's Name :- {{ $roForm->client_name }}</strong>
+                            </td>
+                        </tr>
 
-                    <p style="margin-bottom:8px;">
-                        <b>Service Description:</b>
-                    </p>
-
-                    <p>
-
-                    <p style="margin-bottom:10px;">
-                        <b>Client's Name :- {{ $roForm->client_name }}</b>
-                    </p>
-
-                    </p>
+                    </table>
 
                     <table class="service-table">
 
@@ -323,19 +334,17 @@
 
                             <tr>
 
-                                <th width="22%">Service</th>
+                                <th>Service</th>
 
-                                <th width="12%">Ad Type</th>
+                                <th>Ad Type</th>
 
-                                <th width="12%">Ad Unit</th>
+                                <th>Ad Unit</th>
 
-                                <th width="18%">Deliverables</th>
+                                <th>{{ $roForm->buy_type }}</th>
 
-                                <th width="10%">Volume</th>
+                                <th>{{ $roForm->deliverables }}</th>
 
-                                <th width="13%">Bid</th>
-
-                                <th width="13%">Amount</th>
+                                <th>Amount</th>
 
                             </tr>
 
@@ -345,7 +354,7 @@
 
                             <tr>
 
-                                <td class="left">
+                                <td>
                                     {{ $roForm->service }}
                                 </td>
 
@@ -366,10 +375,6 @@
                                 </td>
 
                                 <td>
-                                    {{ number_format($roForm->bid, 2) }}
-                                </td>
-
-                                <td>
                                     {{ number_format($roForm->total_amount, 2) }}
                                 </td>
 
@@ -379,13 +384,18 @@
 
                     </table>
 
-                    <br>
 
                     <table width="100%" style="border:none;">
 
                         <tr>
+                            <td style="font-size: 10px">
+                                Value : {{ $amountInWords }} Rupees Only
+                            </td>
+                        </tr> <br>
 
-                            <td style="border:none;padding:0;">
+                        <tr>
+
+                            <td style="font-size: 10px">
 
                                 <b>Delivery/job completion date :</b>
 
@@ -399,52 +409,53 @@
 
                     <br>
 
-                    <p>
+                    <table width="100%" style="border:none; border-collapse:collapse;">
 
-                        <b>Payment terms &amp; conditions :</b>
+                        <tr>
+                            <td style="border:none;">
+                                <strong>Payment Terms &amp; Conditions :</strong>
+                            </td>
+                        </tr>
 
-                    </p>
+                        <tr>
+                            <td style="border:none; padding-top:5px; ">
+                                1. Above price is net to <strong>ANVIS DIGITAL PVT. LTD.</strong> Exclusive of any Govt.
+                                Taxes.
+                            </td>
+                        </tr>
 
-                    <ol>
+                        <tr>
+                            <td style="border:none; padding-top:5px;">
+                                2. Payment Terms : Net 60 Days.
+                            </td>
+                        </tr>
 
-                        <li>
+                        <tr>
+                            <td style="border:none; padding-top:5px;">
+                                3. Publisher to provide access to reporting interface/screenshots.
+                            </td>
+                        </tr>
 
-                            Above price is net to ANVIS DIGITAL PVT.LTD.
-                            Exclusive of any Govt. Taxes.
+                        <tr>
+                            <td style="border:none; padding-top:5px;">
+                                4. RO details should be kept confidential between the two involved parties.
+                            </td>
+                        </tr>
 
-                        </li>
+                        <tr style="border:none; padding-top:4px;">
+                            <td> It shouldn't be disclosed to any other party.</td>
+                        </tr>
 
-                        <li>
+                        <tr>
+                            <td style="border:none; text-align:justify;">
+                                Please sign &amp; return the duplicate copy of this Service Order as a
+                                token of your acceptance.
+                            </td>
+                        </tr>
 
-                            Payment Terms : Net 60 Days.
-
-                        </li>
-
-                        <li>
-
-                            Publisher to provide access to reporting interface/screenshots.
-
-                        </li>
-
-                        <li>
-
-                            RO Details should be kept confidential between the two involved parties.
-                            It shouldn't be disclosed to any other party.
-
-                        </li>
-
-                    </ol>
+                    </table>
 
                     <br>
-
-                    <p>
-
-                        Please sign &amp; return the duplicate copy of this Service Order
-                        as token of your acceptance.
-
-                    </p>
-
-                    <br><br>
 
                     <table class="footer" width="100%">
 
@@ -478,7 +489,7 @@
 
                                 {{ $roForm->createdBy->last_name ?? '' }}
 
-                                <br>
+                                <br><br><br><br>
 
                                 Approval Status :
 
@@ -494,7 +505,7 @@
 
                                 </b>
 
-                                <br><br><br><br><br><br><br>
+                                <br><br><br><br><br><br><br><br><br>
 
                                 _____________________
 

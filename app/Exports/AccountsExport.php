@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\Accounts;
+use App\Models\RoForm;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -26,11 +26,9 @@ class AccountsExport implements FromCollection, WithHeadings, ShouldAutoSize, Wi
 
     public function collection()
     {
-        $query = Accounts::with('roForm')
-            ->whereHas('roForm', function ($q) {
-                $q->where('status', 'approved');
-            })
-            ->orderBy('created_at');
+        $query = RoForm::with('account')
+            // ->where('status', 'approved')
+            ->orderBy('created_at', 'asc');
 
         if ($this->fromDate) {
             $query->whereDate('created_at', '>=', $this->fromDate);
@@ -40,29 +38,46 @@ class AccountsExport implements FromCollection, WithHeadings, ShouldAutoSize, Wi
             $query->whereDate('created_at', '<=', $this->toDate);
         }
 
-        return $query->get()->map(function ($account) {
+        return $query->get()->map(function ($roForm) {
+
+            $account = $roForm->account;
+
             return [
-                $account->roForm?->ro_number ?? '-',
-                optional($account->roForm?->created_at)->format('d-m-Y'),
-                $account->roForm?->vendor_name ?? '-',
-                $account->vendor_invoice,
-                $account->vendor_invoice_date
+                $roForm->ro_number,
+                optional($roForm->created_at)->format('d-m-Y'),
+                $roForm->vendor_name,
+
+                $account?->vendor_invoice ?? '',
+                $account?->vendor_invoice_date
                     ? date('d-m-Y', strtotime($account->vendor_invoice_date))
-                    : '-',
-                $account->vendor_status,
-                $account->bill_name,
-                $account->roForm?->service ?? '-',
-                optional($account->roForm?->created_at)->format('d-m-Y'),
-                $account->roForm?->completion_date ?? '-',
-                $account->roForm?->total_amount ?? 0,
-                $account->external_amount,
-                $account->anvis_invoice,
-                $account->anvis_invoice_date
+                    : '',
+
+                $account?->vendor_status ?? '',
+
+                $account?->bill_name ?? '',
+
+                $roForm->service,
+
+                optional($roForm->created_at)->format('d-m-Y'),
+
+                $roForm->completion_date
+                    ? \Carbon\Carbon::parse($roForm->completion_date)->format('d-m-Y') : '',
+
+                $roForm->total_amount,
+
+                $account?->external_amount ?? '',
+
+                $account?->anvis_invoice ?? '',
+
+                $account?->anvis_invoice_date
                     ? date('d-m-Y', strtotime($account->anvis_invoice_date))
-                    : '-',
-                $account->anvis_status,
-                $account->executive,
-                '-',
+                    : '',
+
+                $account?->anvis_status ?? '',
+
+                $account?->executive ?? '',
+
+                $account?->comments ?? '',
             ];
         });
     }
