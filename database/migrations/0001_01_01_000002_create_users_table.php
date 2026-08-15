@@ -16,6 +16,11 @@ return new class extends Migration
             $table->string('username');
             $table->string('email')->unique();
             $table->string('password');
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->foreignId('roles_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('departments_id')->constrained()->cascadeOnDelete();
+            $table->enum('status',['active','inactive'])->default('active');
 
             $table->timestamps();
         });

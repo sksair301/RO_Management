@@ -12,7 +12,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'jwt'=> \App\Http\Middleware\JwtMiddleware::class,
+            'roles'=> \App\Http\Middleware\RoleMiddleware::class,
+            'role'=> \App\Http\Middleware\RoleMiddleware::class,
+            'permissions'=> \App\Http\Middleware\PermissionMiddleware::class,
+            'department'=> \App\Http\Middleware\DepartmentMiddleware::class,
+            'departments'=> \App\Http\Middleware\DepartmentMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

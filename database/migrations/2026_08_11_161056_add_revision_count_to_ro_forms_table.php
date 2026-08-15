@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('department', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->timestamps();
+        Schema::table('ro_forms', function (Blueprint $table) {
+            $table->unsignedInteger('revision_count')->default(0)->after('updated_by');
         });
     }
 
@@ -23,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('department');
+        Schema::table('ro_forms', function (Blueprint $table) {
+            $table->dropColumn('revision_count');
+        });
     }
 };

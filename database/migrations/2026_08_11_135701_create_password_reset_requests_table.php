@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('role', function (Blueprint $table) {
+        Schema::create('password_reset_requests', function (Blueprint $table) {
+
             $table->id();
-            $table->string('name');
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->string('token')->unique();
+            $table->timestamp('expires_at');
+            $table->timestamp('used_at')->nullable();
             $table->timestamps();
         });
     }
@@ -23,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('role');
+        Schema::dropIfExists('password_reset_requests');
     }
 };
